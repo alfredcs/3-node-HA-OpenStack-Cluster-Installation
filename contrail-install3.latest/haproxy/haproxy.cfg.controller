@@ -1,0 +1,84 @@
+global
+    log 127.0.0.1 local0 notice notice
+    log ${LOCAL_SYSLOG}:514 local0 notice notice
+    log 127.0.0.1 local1 notice notice
+    log ${LOCAL_SYSLOG}:514 local1 notice notice
+    maxconn 4096
+    tune.ssl.default-dh-param 2048
+    #chroot /usr/share/haproxy
+    user haproxy
+    group haproxy
+    daemon
+    #debug
+    #quiet
+    tune.bufsize 32768
+    #chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+
+    # turn on stats unix socket
+    stats socket /var/lib/haproxy/stats
+
+defaults
+    log global
+    retries 3
+    maxconn 2000
+    timeout connect  5000
+    timeout client 50000
+    timeout server 50000
+    option                  tcplog
+    option                  dontlognull
+    option http-server-close
+    #option forwardfor       except 127.0.0.0/8
+    option                  redispatch
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          1m
+    timeout server          1m
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 3000
+
+listen stats 0.0.0.0:8040
+        mode http
+        # stats uri /
+        stats uri /stats
+        stats show-node
+        stats show-legends
+        stats realm HAProxy\ Statistics
+        stats auth admin:EZwC4CW1UEiBHEfNTeKv
+        stats admin if TRUE
+
+listen contrail-api 0.0.0.0:8082
+    balance roundrobin
+    server contrail-api-1 first_contrail_controller:9100 check port 60120 inter 2000 fall 4 rise 3
+    server contrail-api-2 second_contrail_controller:9100 check port 60120 inter 2000 fall 4 rise 3
+    server contrail-api-3 third_contrail_controller:9100 check port 60120 inter 2000 fall 4 rise 3
+
+listen discovery-api 0.0.0.0:5998
+    balance roundrobin
+    server discovery-api-1 first_contrail_controller:9110 check port 60121 inter 2000 fall 4 rise 3
+    server discovery-api-2 second_contrail_controller:9110 check port 60121 inter 2000 fall 4 rise 3
+    server discovery-api-3 third_contrail_controller:9110 check port 60121 inter 2000 fall 4 rise 3
+
+frontend https_frontend_neutron-api
+    bind *:9696 ssl crt /etc/contrail/ssl/certs/server01.pem
+    mode http
+    option httpclose
+    option httplog
+    option forwardfor
+    reqadd X-Forwarded-Proto:\ https
+    default_backend neutron-api
+
+backend neutron-api
+    mode http
+    balance roundrobin
+    server neutron-api-1 first_contrail_controller:9697 check port 60122 inter 2000 fall 4 rise 3
+    server neutron-api-2 second_contrail_controller:9697 check port 60122 inter 2000 fall 4 rise 3
+    server neutron-api-3 third_contrail_controller:9697 check port 60122 inter 2000 fall 4 rise 3
+
+listen analytics-api 0.0.0.0:8081
+    balance roundrobin
+    server analytics-api-1 first_contrail_controller:9081 check port 60123 inter 2000 fall 4 rise 3
+    server analytics-api-2 second_contrail_controller:9081 check port 60123 inter 2000 fall 4 rise 3
+    server analytics-api-3 third_contrail_controller:9081 check port 60123 inter 2000 fall 4 rise 3

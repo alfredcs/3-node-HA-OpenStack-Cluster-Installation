@@ -1,0 +1,12 @@
+config_keyspaces = ['config_db_uuid', 'useragent', # api-server
+                    'to_bgp_keyspace', # schema-transformer
+                    'svc_monitor_keyspace', # service-monitor
+                   ]
+
+for ks in SYSTEM_MANAGER.list_keyspaces():
+    if ks not in config_keyspaces:
+        continue
+    SYSTEM_MANAGER.drop_keyspace(ks)
+    print "Dropped keyspace " + ks
+
+exit()

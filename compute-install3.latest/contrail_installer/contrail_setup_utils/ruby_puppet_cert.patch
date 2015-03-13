@@ -1,0 +1,11 @@
+--- /usr/share/ruby/vendor_ruby/puppet/ssl/base.rb	2013-02-25 11:37:39.376177913 -0800
++++ base.rb	2013-02-25 11:42:59.794206136 -0800
+@@ -6,7 +6,7 @@
+   SEPARATOR = "\n---\n"
+ 
+   # Only allow printing ascii characters, excluding /
+-  VALID_CERTNAME = /\A[ -.0-~]+\Z/
++  VALID_CERTNAME = /\A[ -.0-~\/]+\Z/
+ 
+   def self.from_multiple_s(text)
+     text.split(SEPARATOR).collect { |inst| from_s(inst) }

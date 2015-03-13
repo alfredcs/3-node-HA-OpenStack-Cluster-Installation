@@ -1,0 +1,15 @@
+#Contrail vhost0
+DEVICE=vhost0
+ONBOOT=yes
+BOOTPROTO=none
+IPV6INIT=no
+USERCTL=yes
+IPADDR=this_ip
+NETMASK=this_netmask
+NM_CONTROLLED=no
+#NETWORK MANAGER BUG WORKAROUND
+SUBCHANNELS=1,2,3
+GATEWAY=this_gw
+DNS1=dns_server_1
+DNS2=dns_server_2
+DOMAIN=this_domainname

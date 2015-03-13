@@ -1,0 +1,195 @@
+/bin/cp -r my.cnf /etc; /bin/cp -fr mysql /etc
+# Replace this_id with approperiate value, ie. 1 for the first master and 2 fo rthe second
+service restart mysqld
+hatem@node1$ mysql -u root -p
+mysql> CREATE DATABASE masterdbname;
+
+We will have to grant a username and password replication permission on the node1 :
+
+mysql> GRANT REPLICATION SLAVE ON *.* TO 'user'@'%' IDENTIFIED BY 'password';
+mysql> FLUSH PRIVILEGES;
+mysql> show master status;
++------------------+----------+--------------+------------------+
+| File | Position | Binlog_Do_DB | Binlog_Ignore_DB |
++------------------+----------+--------------+------------------+
+| mysql-bin.000034 | 443 | masterdbname | mysql,test |
++------------------+----------+--------------+------------------+
+1 row in set (0.00 sec)
+mysql> quit
+
+Now we can move to node2 and configure the mysql server :
+
+hatem@node2$ sudo vi /etc/mysql/my.cnf
+
+We will have the similar config here too, but with a different server-id
+
+[mysqld] # bind-address = 127.0.0.1
+server-id = 2
+log_bin = /var/log/mysql/mysql-bin.log
+expire_logs_days = 10
+max_binlog_size = 100M
+binlog_do_db = masterdbname
+binlog_ignore_db = mysql
+binlog_ignore_db = test
+
+Restart mysql
+
+hatem@node2$ sudo /etc/init.d/mysql restart
+
+If you have a database dump you can import it in node1, however you can just create the database masterdbname manually :
+
+hatem@node1$ mysql -u root -p
+mysql> CREATE DATABASE masterdbname;
+
+We will have to grant a username and password replication permission on the node1 :
+
+mysql> GRANT REPLICATION SLAVE ON *.* TO 'user'@'%' IDENTIFIED BY 'password';
+mysql> FLUSH PRIVILEGES;
+mysql> show master status;
++------------------+----------+--------------+------------------+
+| File | Position | Binlog_Do_DB | Binlog_Ignore_DB |
++------------------+----------+--------------+------------------+
+| mysql-bin.000034 | 443 | masterdbname | mysql,test |
++------------------+----------+--------------+------------------+
+1 row in set (0.00 sec)
+mysql> quit
+
+Now we can move to node2 and configure the mysql server :
+
+hatem@node2$ sudo vi /etc/mysql/my.cnf
+
+We will have the similar config here too, but with a different server-id
+
+[mysqld] # bind-address = 127.0.0.1
+server-id = 2
+log_bin = /var/log/mysql/mysql-bin.log
+expire_logs_days = 10
+max_binlog_size = 100M
+binlog_do_db = masterdbname
+binlog_ignore_db = mysql
+binlog_ignore_db = test
+
+Restart mysql
+
+hatem@node2$ sudo /etc/init.d/mysql restart
+
+Finally we can connect to node2 server and setup the first replication :
+
+hatem@node2$ mysql -u root -p
+mysql> GRANT REPLICATION SLAVE ON *.* TO 'user'@'%' IDENTIFIED BY 'password';
+mysql> CREATE DATABASE masterdbname;
+mysql> CHANGE MASTER TO MASTER_HOST='10.10.0.1', MASTER_USER='user', MASTER_PASSWORD='password', MASTER_LOG_FILE='mysql-bin.000034', MASTER_LOG_POS=443;
+
+Notice that MASTER_LOG_FILE and MASTER_LOG_POS values are from previous show master status result.
+
+The first replication is done we can start the slave :
+
+mysql> START SLAVE;
+mysql> show slave status \G
+*************************** 1. row ***************************
+Slave_IO_State: Waiting for master to send event
+Master_Host: 10.10.0.1
+Master_User: user
+Master_Port: 3306
+Connect_Retry: 60
+Master_Log_File: mysql-bin.000034
+Read_Master_Log_Pos: 261
+Relay_Log_File: Node2-relay-bin.000002
+Relay_Log_Pos: 406
+Relay_Master_Log_File: mysql-bin.000034
+Slave_IO_Running: Yes
+Slave_SQL_Running: Yes
+
+If the Slave_IO_Running and Slave_SQL_Running are Yes it mean your first replication is done and you can create a simple table :
+
+At Node1 (actual master) create a table :
+
+mysql> use masterdbname;
+mysql> create table testmaster21 (mid int(11) auto_increment, PRIMARY KEY (mid)) Engine=MyISAM;
+
+Check available tables at node2 (actual slave) … Tada :
+
+mysql> show tables;
++------------------------+
+| Tables_in_masterdbname |
++------------------------+
+| testmaster21 |
++------------------------+
+1 rows in set (0.00 sec)
+
+Now the second part is very easy, we need first to check master details in node2 :
+
+mysql> show master status;
++------------------+----------+--------------+------------------+
+| File | Position | Binlog_Do_DB | Binlog_Ignore_DB |
++------------------+----------+--------------+------------------+
+| mysql-bin.000034 | 261 | masterdbname | mysql,test |
++------------------+----------+--------------+------------------+
+1 row in set (0.00 sec)
+
+Then add in node1 :
+
+mysql> CHANGE MASTER TO MASTER_HOST='10.10.0.2', MASTER_USER='user', MASTER_PASSWORD='password', MASTER_LOG_FILE='mysql-bin.000034', MASTER_LOG_POS=261;
+mysql> START SLAVE;
+mysql> show slave status \G
+*************************** 1. row ***************************
+Slave_IO_State: Waiting for master to send event
+Master_Host: 10.10.0.2
+Master_User: user
+Master_User: user
+Master_Port: 3306
+Connect_Retry: 60
+Master_Log_File: mysql-bin.000034
+Read_Master_Log_Pos: 261
+Relay_Log_File: Node1-relay-bin.000002
+Relay_Log_Pos: 406
+Relay_Master_Log_File: mysql-bin.000034
+Slave_IO_Running: Yes
+Slave_SQL_Running: Yes
+
+
+===========================================
+
+ 
+Last_IO_Errno: 1236
+Last_IO_Error: Got fatal error 1236 from master when reading data from binary log: ‘Could not find first log file name in binary log index file’
+ 
+
+
+
+
+
+
+
+
+
+
+
+Solution:--
+ 
+Slave Server: stop slave;
+ 
+ 
+In Master Server: flush logs
+
+ 
+In Master Server: show master status; — take note of the master log file and master log position
+
+ 
+
+
+
+
+
+
+
+
+
+ 
+ 
+Slave Server : CHANGE MASTER TO MASTER_LOG_FILE=’viznet-db-bin.000002′, MASTER_LOG_POS=2478;
+
+
+Slave Server: start slave;
+
+

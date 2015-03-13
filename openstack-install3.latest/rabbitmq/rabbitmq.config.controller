@@ -1,0 +1,29 @@
+[
+ {rabbit, [ 
+ 	{tcp_listeners, [5673]},
+	{loopback_users, []},
+ 	{collect_statistics_interval, 10000},
+ 	{heartbeat,10},
+        {channel_max,5000},
+ 	{cluster_partition_handling, autoheal},
+ 	{cluster_nodes, {[ 'rabbit@first_openstack_controller','rabbit@second_openstack_controller','rabbit@third_openstack_controller'], disc}},
+ 	{rabbitmq_management, [ {http_log_dir,"/tmp/rabbit-mgmt"},{listener, [{port, 8080}]} ] },
+        {vm_memory_high_watermark, 0.4},
+        {disk_free_limit,100000000},
+        {log_levels,[{connection, info},{mirroring, info}]},
+        {delegate_count,32},
+        {tcp_listen_options,
+          [binary,
+        	{packet, raw},
+                {reuseaddr, true},
+                {backlog, 128},
+                {nodelay, true},
+                {exit_on_close, false},
+                {keepalive, true}
+          ]
+        },
+        {collect_statistics_interval, 60000},
+ 	{rabbitmq_management_agent, [ {force_fine_statistics, true} ] }
+ ]},
+ {kernel, [{net_ticktime,  30}]}
+].

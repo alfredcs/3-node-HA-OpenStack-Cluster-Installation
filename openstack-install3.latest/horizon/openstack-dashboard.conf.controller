@@ -1,0 +1,29 @@
+WSGISocketPrefix run/wsgi
+<VirtualHost *:80>
+ServerName controller
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+</IfModule>
+<IfModule !mod_rewrite.c>
+RedirectPermanent / https://controller
+</IfModule>
+</VirtualHost>
+<VirtualHost *:443>
+ServerName controller
+SSLEngine On
+SSLCertificateFile /etc/keystone/ssl/certs/server01.crt
+SSLCACertificateFile /etc/keystone/ssl/certs/ca.crt
+SSLCertificateKeyFile /etc/keystone/ssl/private/server01.key
+SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
+Header add Strict-Transport-Security "max-age=15768000"
+WSGIDaemonProcess dashboard user=apache  group=apache processes=3 threads=10
+WSGIProcessGroup dashboard
+WSGIScriptAlias /dashboard /usr/share/openstack-dashboard/openstack_dashboard/wsgi/django.wsgi
+Alias /static /usr/share/openstack-dashboard/static
+<Directory /usr/share/openstack-dashboard/openstack_dashboard/wsgi>
+Order allow,deny
+Allow from all
+</Directory>
+</VirtualHost>

@@ -1,0 +1,136 @@
+global
+    log 127.0.0.1 local1 notice
+    maxconn 4096
+    #chroot /usr/share/haproxy
+    user haproxy
+    group haproxy
+    daemon
+    #debug
+    #quiet
+    tune.bufsize 32768
+    #chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+
+    # turn on stats unix socket
+    stats socket /var/lib/haproxy/stats
+
+defaults
+    log global
+    mode http
+    retries 3
+    maxconn 2000
+    timeout connect  5000
+    timeout client 50000
+    timeout server 50000
+    option                  tcplog
+    option                  dontlognull
+    option http-server-close
+    #option forwardfor       except 127.0.0.0/8
+    option                  redispatch
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          1m
+    timeout server          1m
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 3000
+
+
+listen stats 0.0.0.0:8040
+        mode http
+        # stats uri /
+        stats uri /stats
+        stats show-node
+        stats show-legends
+        stats realm HAProxy\ Statistics
+        stats auth admin:EZwC4CW1UEiBHEfNTeKv
+        stats admin if TRUE
+
+listen keystone-internal-api 0.0.0.0:5000
+    balance roundrobin
+    mode    KEYSTONE_LB_MODE 
+    option  tcplog
+    option  contstats
+    option httpchk HEAD / HTTP/1.1\r\n
+    server keystone-internal-api-1 first_openstack_controller:5001 check inter 2000 fall 4 rise 3
+    server keystone-internal-api-2 second_openstack_controller:5001 check inter 2000 fall 4 rise 3
+    server keystone-internal-api-3 third_openstack_controller:5001 check inter 2000 fall 4 rise 3
+
+listen keystone-admin-api 0.0.0.0:35357
+    balance roundrobin
+    mode    KEYSTONE_LB_MODE
+    option  tcplog
+    option  contstats
+    server keystone-admin-api-1 first_openstack_controller:35358 check port check_keystone_port inter 2000 fall 4 rise 3
+    server keystone-admin-api-2 second_openstack_controller:35358 check port check_keystone_port inter 2000 fall 4 rise 3
+    server keystone-admin-api-3 third_openstack_controller:35358 check port check_keystone_port inter 2000 fall 4 rise 3
+
+listen glance-api 0.0.0.0:9292
+    balance roundrobin
+    mode    http
+    option  tcplog
+    option  contstats
+    server glance-api-1 first_openstack_controller:9293 check port check_glance_port inter 2000 fall 4 rise 3
+    server glance-api-2 second_openstack_controller:9293 check port check_glance_port inter 2000 fall 4 rise 3
+    server glance-api-3 third_openstack_controller:9293 check port check_glance_port inter 2000 fall 4 rise 3
+
+listen glance-registry 0.0.0.0:9191
+    balance roundrobin
+    mode    http
+    option  tcplog
+    option  contstats
+    option httpchk HEAD / HTTP/1.1\r\n
+    server glance-registry-1 first_openstack_controller:9192 check inter 2000 fall 4 rise 3
+    server glance-registry-2 second_openstack_controller:9192 check inter 2000 fall 4 rise 3
+    server glance-registry-3 second_openstack_controller:9192 check inter 2000 fall 4 rise 3
+
+
+
+listen nova-api 0.0.0.0:8774
+    balance roundrobin
+    mode    http
+    option  tcplog
+    option  contstats
+    server nova-api-1 first_openstack_controller:8776 check port check_nova_api_port inter 2000 fall 4 rise 3
+    server nova-api-2 second_openstack_controller:8776 check port check_nova_api_port inter 2000 fall 4 rise 3
+    server nova-api-3 third_openstack_controller:8776 check port check_nova_api_port inter 2000 fall 4 rise 3
+
+listen vnc-console-api 0.0.0.0:6080
+    balance roundrobin
+    mode    http
+    option  tcplog
+    option  contstats
+    option httpchk HEAD / HTTP/1.1\r\n
+    server vnc-console-api-1 first_openstack_controller:6081 check inter 2000 fall 4 rise 3
+    server vnc-conaole-api-2 second_openstack_controller:6081 check inter 2000 fall 4 rise 3
+    server vnc-console-api-3 third_openstack_controller:6081 check inter 2000 fall 4 rise 3
+
+listen rabbitmq-api 0.0.0.0:5672
+    balance roundrobin
+    mode    tcp
+    option  tcplog
+    option  contstats
+    server rabbitmq-api-1 first_openstack_controller:5673 check port check_rabbitmq_port inter 2000 fall 4 rise 3
+    server rabbitmq-api-2 second_openstack_controller:5673 check port check_rabbitmq_port inter 2000 fall 4 rise 3
+    server rabbitmq-api-3 third_openstack_controller:5673 check port check_rabbitmq_port inter 2000 fall 4 rise 3
+
+listen horizon-api 0.0.0.0:1080
+    balance roundrobin
+    mode    http
+    option  tcplog
+    option  contstats
+    option httpchk HEAD / HTTP/1.1\r\n
+    server horizon-api-1 first_openstack_controller:80 check inter 2000 fall 4 rise 3
+    server horizon-api-2 second_openstack_controller:80 check inter 2000 fall 4 rise 3
+    server horizon-api-3 third_openstack_controller:80 check inter 2000 fall 4 rise 3
+
+listen horizon-ssl-api 0.0.0.0:1443
+    balance roundrobin
+    mode    http
+    option  tcplog
+    option  contstats
+    option httpchk HEAD / HTTP/1.1\r\n	
+    server horizon-ssl-api-1 first_openstack_controller:443 check inter 2000 fall 4 rise 3
+    server horizon-ssl-api-2 second_openstack_controller:443 check inter 2000 fall 4 rise 3
+    server horizon-ssl-api-3 third_openstack_controller:443 check inter 2000 fall 4 rise 3

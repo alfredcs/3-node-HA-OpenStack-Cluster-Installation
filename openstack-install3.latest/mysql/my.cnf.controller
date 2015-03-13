@@ -1,0 +1,49 @@
+[mysqld]
+datadir=/var/lib/mysql
+user=mysql
+tmpdir=/var/tmp/mysql
+# Path to Galera library
+wsrep_provider=/usr/lib64/libgalera_smm.so
+
+# Cluster connection URL contains the IPs of node#1, node#2 and node#3
+wsrep_cluster_address=gcomm://first_openstack_controller,second_openstack_controller,third_openstack_controller
+
+# In order for Galera to work correctly binlog format should be ROW
+binlog_format=ROW
+
+# MyISAM storage engine has only experimental support
+default_storage_engine=InnoDB
+
+# Node #1 address
+wsrep_node_address=this_ip
+
+# SST method
+wsrep_sst_method=xtrabackup
+wsrep_node_name=this_hostname
+
+# Cluster name
+wsrep_cluster_name=openstack_controller_cluster
+wsrep_slave_threads=2
+
+# Authentication for SST method
+wsrep_sst_auth="sstuser:67gY1jTYhkWd"
+wsrep_certify_nonPK=1
+wsrep_convert_LOCK_to_trx=0
+wsrep_auto_increment_control=1
+wsrep_drupal_282555_workaround=0
+wsrep_causal_reads=0
+
+# Optional
+query_cache_size=0
+innodb_file_per_table
+innodb_flush_log_at_trx_commit=2
+# This changes how InnoDB autoincrement locks are managed and is a requirement for Galera
+innodb_autoinc_lock_mode=2
+innodb_buffer_pool_size = 4G
+innodb_log_file_size    = 512M
+innodb_log_buffer_size  = 8M
+# #wsrep_provider_options="gcache.size=8G; gcache.page_size=1G"
+#
+max_connections=1000
+max_allowed_packet=128M
+

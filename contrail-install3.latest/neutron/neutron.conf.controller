@@ -1,0 +1,24 @@
+[DEFAULT]
+log_dir = /var/log/neutron
+core_plugin = neutron.plugins.juniper.contrail.contrailplugin.ContrailPlugin
+#core_plugin = neutron.plugins.openvswitch.ovs_neutron_plugin.OVSNeutronPluginV2
+auth_strategy = keystone
+#rpc_backend=neutron.openstack.common.rpc.impl_qpid
+#qpid_hostname = openstack_controller
+rpc_backend=neutron.openstack.common.rpc.impl_kombu
+rabbit_host = openstack_controller
+rabbit_port = 5672
+#bind_port = 9696
+bind_port = 9697
+[quotas]
+[agent]
+root_helper = sudo neutron-rootwrap /etc/neutron/rootwrap.conf
+[keystone_authtoken]
+auth_host = openstack_controller
+auth_port = 35357
+auth_protocol = http_cmd
+admin_tenant_name = service
+admin_user = neutron
+admin_password = neutron_keystone_password
+[database]
+#connection = mysql://neutron:neutron_db_password@openstack_controller/neutron

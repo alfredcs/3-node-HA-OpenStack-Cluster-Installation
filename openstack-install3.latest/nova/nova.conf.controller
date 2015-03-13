@@ -1,0 +1,85 @@
+[DEFAULT]
+rpc_backend=nova.openstack.common.rpc.impl_kombu
+rabbit_host=local_controller
+rabbit_port = 5672
+my_ip=local_controller
+auth_host=openstack_controller
+service_neutron_metadata_proxy = True
+quota_instances=200
+quota_cores=400
+quota_ram=5120000
+quota_floating_ips=100
+metadata_workers=3
+metadata_host=$my_ip
+metadata_listen_port=9775
+metadata_port=9775
+api_paste_config=/etc/nova/api-paste.ini
+auth_strategy=keystone
+glance_host=openstack_controller
+glance_port=9292
+glance_protocol=http_cmd
+glance_api_insecure=True
+glance_api_servers=http_cmd://$glance_host:$glance_port
+osapi_compute_listen_port=8776
+#########
+# Neutron
+#########
+network_api_class=nova.network.neutronv2.api.API
+neutron_url=http_cmd://contrail_controller:9696
+neutron_auth_strategy=keystone
+neutron_admin_tenant_name=service
+neutron_admin_username=neutron
+neutron_admin_password=neutron_keystone_password
+neutron_admin_auth_url=http_cmd://openstack_controller:35357/v2.0
+neutron_api_insecure=True
+security_group_api=neutron
+firewall_driver=nova.virt.firewall.NoopFirewallDriver
+service_neutron_metadata_proxy=true
+neutron_metadata_proxy_shared_secret=neutronsucks
+##########
+# VNC
+##########
+vncserver_listen = local_controller
+vncserver_proxyclient_address = local_controller
+novncproxy_host=local_controller
+novncproxy_port=6081
+novncproxy_base_url=http://openstack_controller:6080/vnc_auto.html
+########
+# Quotas
+########
+quota_security_groups=50
+quota_security_group_rules=20
+quota_fixed_ips=400
+quota_instances=200
+force_config_drive=false
+cpu_allocation_ratio=4.0
+ram_allocation_ratio=2.0
+image_cache_manager_interval=2400
+[hyperv]
+[zookeeper]
+[osapi_v3]
+[conductor]
+[keymgr]
+[cells]
+[database]
+connection = mysql://nova:nova_db_password@local_controller/nova
+sql_idle_timeout=5
+[image_file_url]
+[baremetal]
+[rpc_notifier2]
+[matchmaker_redis]
+[ssl]
+[trusted_computing]
+[upgrade_levels]
+[matchmaker_ring]
+[vmware]
+[spice]
+[keystone_authtoken]
+auth_host = openstack_controller
+auth_port = 35357
+auth_protocol = http_cmd
+admin_tenant_name = service
+admin_user = nova
+admin_password = nova_keystone_password
+signing_dir = /var/lib/nova/keystone-signing
+cache = None

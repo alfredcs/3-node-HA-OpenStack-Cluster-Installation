@@ -1,0 +1,19 @@
+[DATABASE]
+sql_connection = mysql://neutron:neutron_db_password@controller/neutron
+reconnect_interval = 2
+
+[OVS]
+tenant_network_type = vlan
+integration_bridge = br-int
+local_ip = controller
+enable_tunneling = False
+network_vlan_ranges = ph-bond0:1000:4094,ph-bond1:1000:4094
+bridge_mappings = ph-bond0:br-bond0,ph-bond1:br-bond1
+
+[SECURITYGROUP]
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+
+[AGENT]
+state_path = /var/run/neutron
+debug = False
+verbose = False

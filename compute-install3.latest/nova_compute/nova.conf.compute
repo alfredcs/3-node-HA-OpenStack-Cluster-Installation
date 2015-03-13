@@ -1,0 +1,95 @@
+[DEFAULT]
+rpc_backend=nova.openstack.common.rpc.impl_kombu
+rabbit_host = openstack_controller
+rabbit_port = 5672
+my_ip = this_ip
+auth_host = openstack_controller
+admin_user = nova
+admin_tenant_name = service
+admin_password = nova_keystone_password
+service_neutron_metadata_proxy = True
+quota_instances=50000
+quota_cores=400000
+quota_ram=5120000000
+quota_floating_ips=10000
+metadata_host=openstack_controller
+metadata_workers=2
+api_paste_config=/etc/nova/api-paste.ini
+auth_strategy=keystone
+glance_host=openstack_controller
+glance_port=9292
+glance_api_servers=http_cmd://$glance_host:$glance_port
+node_availability_zone=this_zone
+#########
+## Libvirt
+##########
+libvirt_type=kvm
+compute_driver = nova.virt.libvirt.LibvirtDriver
+connection_type=libvirt
+libvirt_nonblocking = True
+libvirt_inject_partition = -1
+libvirt_vif_driver = nova_contrail_vif.contrailvif.VRouterVIFDriver
+firewall_driver=nova.virt.firewall.NoopFirewallDriver
+libvirt_cpu_mode=none
+libvirt_use_virtio_for_bridges=True
+instances_path=/var/lib/nova/instances
+#########
+# Neutron
+#########
+network_api_class=nova.network.neutronv2.api.API
+neutron_url=http_cmd://contrail_controller:9696
+neutron_auth_strategy=keystone
+neutron_admin_tenant_name=service
+neutron_admin_username=neutron
+neutron_admin_password=neutron_keystone_password
+neutron_admin_auth_url=http_cmd://openstack_controller:35357/v2.0
+security_group_api=neutron
+service_neutron_metadata_proxy=true
+neutron_metadata_proxy_shared_secret=neutronsucks
+##########
+# VNC
+##########
+vncserver_listen = this_ip
+vncserver_proxyclient_address = this_ip
+novncproxy_host=openstack_controller
+novncproxy_port=6080
+novncproxy_base_url=http://openstack_controller:6080/vnc_auto.html
+########
+# Quotas
+########
+quota_security_groups=50
+quota_security_group_rules=20
+quota_fixed_ips=4000
+quota_instances=2000
+force_config_drive=false
+cpu_allocation_ratio=4.0
+ram_allocation_ratio=2.0
+image_cache_manager_interval=2400
+[hyperv]
+[zookeeper]
+[osapi_v3]
+[conductor]
+[keymgr]
+[cells]
+[database]
+connection = mysql://nova:nova_db_password@openstack_controller/nova
+sql_idle_timeout=5
+[image_file_url]
+[baremetal]
+[rpc_notifier2]
+[matchmaker_redis]
+[ssl]
+[trusted_computing]
+[upgrade_levels]
+[matchmaker_ring]
+[vmware]
+[spice]
+[keystone_authtoken]
+auth_host = openstack_controller
+auth_port = 35357
+auth_protocol = http_cmd
+admin_tenant_name = service
+admin_user = nova
+admin_password = nova_keystone_password
+signing_dirname = /tmp/keystone-signing-nova
+insecure=True

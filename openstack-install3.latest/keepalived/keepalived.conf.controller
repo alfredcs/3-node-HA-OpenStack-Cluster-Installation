@@ -1,0 +1,40 @@
+global_defs {
+  notification_email {
+    sysadmin@this_domain
+  }
+  notification_email_from keepalived@this_domain
+  smtp_server 127.0.0.1
+  smtp_connect_timeout 30
+}
+
+vrrp_instance VI_1 {
+    state vrrp_state
+    interface this_interface
+    virtual_router_id this_router
+    priority this_priority
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass EZwC4CW1UEiBHEfNTeKv
+    }
+    lvs_sync_daemon_interface this_interface
+    nopreempt
+    garp_master_delay 10
+    garp_master_repeat 5
+    garp_master_refresh  14400
+    garp_master_refresh_repeat 1
+    virtual_ipaddress {
+        this_vip/this_cidr dev this_interface
+    }
+    track_script  {
+        chk_this_service
+    }
+}
+
+vrrp_script chk_this_service{
+    script "/sbin/service this_service status >/dev/null 2>&1"
+    interval 15  # execute check every 15 seconds
+    weight -2       # adjust priority by -2 if OK
+    rise 2           # required number of failures for KO switch
+    fall 2           # required number of successes for OK switch
+}
