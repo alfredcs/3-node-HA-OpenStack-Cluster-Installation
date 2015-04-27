@@ -6,7 +6,7 @@ cluster based on Havana code release. Additional components such as
 RabbitMQ, Keepalived, Haproxy and MySQL/Galera will also be installed
 to support the cluster operation.
 
-![alt tag] (https://github.com/crabhi/bug-killing-spree/issues/2)
+![promisechains](https://github.com/crabhi/bug-killing-spree/issues/2)
 
 A separated glusterfs cluster is required to serve glance image
 repository and other shared services. The cluster is essential for nova
