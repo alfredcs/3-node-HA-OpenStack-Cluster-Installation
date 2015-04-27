@@ -6,6 +6,7 @@ cluster based on Havana code release. Additional components such as
 RabbitMQ, Keepalived, Haproxy and MySQL/Galera will also be installed
 to support the cluster operation.
 
+        <image> </image>
 A separated glusterfs cluster is required to serve glance image
 repository and other shared services. The cluster is essential for nova
 instance images if to support VM migration across different hypervisor.
