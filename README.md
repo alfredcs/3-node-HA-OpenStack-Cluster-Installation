@@ -59,6 +59,8 @@ with the already installed OpenStack cluster for credential and message
 queue services while OpenStack call Contrail API for network services.
 All interactions are through RESTful API calls.
 
+![opencontrail_ha](https://cloud.githubusercontent.com/assets/3374971/7358169/93300774-ece8-11e4-87e7-377bec26bc7b.png)
+
 Contrail HA Installation Steps
 
 1. Make sure all control nodes' clock are synced with OpenStack control nodes and iptables rules allow needed connection requests
