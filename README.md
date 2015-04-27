@@ -6,7 +6,7 @@ cluster based on Havana code release. Additional components such as
 RabbitMQ, Keepalived, Haproxy and MySQL/Galera will also be installed
 to support the cluster operation.
 
-![promisechains](https://cloud.githubusercontent.com/assets/3374971/7354808/a5799712-ecd2-11e4-8a6a-278864c04df0.png)
+![openstack_ha](https://cloud.githubusercontent.com/assets/3374971/7358159/85d0749c-ece8-11e4-993e-4cef1ce01a49.png)
 
 A separated glusterfs cluster is required to serve glance image
 repository and other shared services. The cluster is essential for nova
